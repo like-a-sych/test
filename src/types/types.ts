@@ -10,11 +10,10 @@ type SquareCellProps = {
 };
 
 type useKeyboardProps = {
-	coordinate: { x: number; y: number };
-	index: number;
+	selected: { x: number; y: number } | null;
 	rows: number;
 	columns: number;
-	onClick: (i: number) => void;
+	onClick: ({x,y}: {x:number,y:number}) => void;
 };
 //ui styles
 type GridProps = {

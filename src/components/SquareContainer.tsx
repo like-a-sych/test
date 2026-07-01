@@ -1,37 +1,35 @@
 import { useCallback, useMemo, useState } from "react";
 import { Grid } from "../ui/styles";
 import { SquareCell } from "./SquareCell";
-import { calcCoordinates, isCross } from "../utils/utils";
+import { isCross } from "../utils/utils";
 import { useKeyboardNav } from "../hooks/useKeyboardNav";
 
 import type { SquareContainerProps } from "../types/types";
 
 export function SquareContainer({ rows, columns }: SquareContainerProps) {
-	const [currentSelectedSquareIndex, setCurrentSelectedSquareIndex] =
-		useState<number>(null);
-	const [coordinate, setCoordinate] = useState<{ x: number; y: number }>(null);
-
-	const cells = useMemo(
-		() => Array.from({ length: rows * columns }),
-		[rows, columns]
+	const [selected, setSelected] = useState<{ x: number; y: number } | null>(
+		null
 	);
 
-	const onClick = useCallback(
-		(index: number) => {
-			setCoordinate(calcCoordinates(index, columns));
+	const cells = useMemo(() => {
+		const result: { x: number; y: number }[] = [];
 
-			if (index === currentSelectedSquareIndex) {
-				setCurrentSelectedSquareIndex(null);
-			} else {
-				setCurrentSelectedSquareIndex(index);
+		for (let y = 0; y < rows; y++) {
+			for (let x = 0; x < columns; x++) {
+				result.push({ x, y });
 			}
-		},
-		[columns, currentSelectedSquareIndex]
-	);
+		}
+		return result;
+	}, [rows, columns]);
+
+	const onClick = useCallback((cell: { x: number; y: number }) => {
+		setSelected(prev =>
+			prev?.x === cell.x && prev?.y === cell.y ? null : cell
+		);
+	}, []);
 
 	useKeyboardNav({
-		coordinate,
-		index: currentSelectedSquareIndex,
+		selected,
 		rows,
 		columns,
 		onClick,
@@ -39,17 +37,17 @@ export function SquareContainer({ rows, columns }: SquareContainerProps) {
 
 	return (
 		<Grid $columns={columns}>
-			{cells.map((_, indexCell) => {
+			{cells.map(({ x, y }) => {
+				const selectedCell = selected?.x === x && selected?.y === y;
 				return (
 					<SquareCell
-						key={indexCell}
-						selected={currentSelectedSquareIndex === indexCell}
+						key={y * columns + x}
+						selected={selectedCell}
 						disabled={
-							currentSelectedSquareIndex !== null &&
-							currentSelectedSquareIndex !== indexCell
+							selected !== null && !selectedCell
 						}
-						isCross={isCross(indexCell, coordinate, columns)}
-						onClick={() => onClick(indexCell)}
+						isCross={isCross({ x, y }, selected)}
+						onClick={() => onClick({ x, y })}
 					/>
 				);
 			})}

@@ -1,36 +1,18 @@
-function calcCoordinates(index: number, columns: number) {
-	return {
-		x: index % columns,
-		y: Math.floor(index / columns),
-	};
-}
-
 function isCross(
-	index: number,
-	coordinate: { x: number; y: number },
-	columns: number
+	cell: { x: number; y: number },
+	selected: { x: number; y: number } | null
 ) {
-	if (coordinate === null) {
+	if (selected === null) {
 		return false;
 	}
 
-	const { x, y } = calcCoordinates(index, columns);
+	const sameColumn = selected.x === cell.x;
+	const sameRow = selected.y === cell.y;
 
-	if (
-		coordinate.x === x &&
-		(coordinate.y === y - 1 || coordinate.y === y + 1)
-	) {
-		return true;
-	}
+	const nextOrPrevCol = selected.x === cell.x-1||selected.x === cell.x+1;
+	const nextOrPrevRow = selected.y === cell.y - 1 || selected.y === cell.y + 1;
 
-	if (
-		coordinate.y === y &&
-		(coordinate.x === x - 1 || coordinate.x === x + 1)
-	) {
-		return true;
-	}
-
-	return false;
+	return (sameColumn && nextOrPrevRow) || (sameRow && nextOrPrevCol);
 }
 
-export { calcCoordinates, isCross };
+export { isCross };
