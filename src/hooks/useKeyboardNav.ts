@@ -3,45 +3,32 @@ import { useEffect } from "react";
 import type { useKeyboardProps } from "../types/types";
 
 export function useKeyboardNav({
-	coordinate,
-	index,
+	selected,
 	rows,
 	columns,
 	onClick,
 }: useKeyboardProps) {
 	useEffect(() => {
 		const handler = (e: KeyboardEvent) => {
-			if (coordinate === null) {
+			if (selected === null) {
 				return;
 			}
-			if (e.key === "ArrowLeft") {
-				if (coordinate.x - 1 < 0) {
-					return;
-				}
-				onClick(index - 1);
+			if (e.key === "ArrowLeft" && selected.x > 0) {
+				onClick({ x: selected.x - 1, y: selected.y });
 			}
-			if (e.key === "ArrowRight") {
-				if (coordinate.x + 1 > columns - 1) {
-					return;
-				}
-				onClick(index + 1);
+			if (e.key === "ArrowRight" && selected.x < columns - 1) {
+				onClick({ x: selected.x + 1, y: selected.y });
 			}
-			if (e.key === "ArrowUp") {
-				if (coordinate.y - 1 < 0) {
-					return;
-				}
-				onClick(index - columns);
+			if (e.key === "ArrowUp" && selected.y > 0) {
+				onClick({ x: selected.x, y: selected.y - 1 });
 			}
-			if (e.key === "ArrowDown") {
-				if (coordinate.y + 1 > rows - 1) {
-					return;
-				}
-				onClick(index + columns);
+			if (e.key === "ArrowDown" && selected.y < rows - 1) {
+				onClick({ x: selected.x, y: selected.y + 1 });
 			}
 		};
 		window.addEventListener("keydown", handler);
 		return () => {
 			window.removeEventListener("keydown", handler);
 		};
-	}, [coordinate, index, columns, rows, onClick]);
+	}, [selected, columns, rows, onClick]);
 }
